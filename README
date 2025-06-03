@@ -1,0 +1,180 @@
+(A) Project Information
+Title: zap
+Author: Caleb Johnson (cjohns34)
+
+
+(B) Purpose
+The purpose of this program is to compress a given text file using the Huffman
+Encoding Algorithm into a string of bits. The program can also take a file
+containing an encoded bit string and a serialized Huffman Tree to decode the
+bitstring and save the decoded text in an output file.
+
+
+(C) Help Received
+I used my lecture notes and cplusplus.com to figure out how to use the priority
+queue data structure. I also utilized a few functions from previous assignments
+from this class. To open and close files, I the used open_and_check() and
+close_file() functions that I made for MetroSim. To delete the trees that I
+created, I used the delete_tree() function that I made in the AVL tree lab.
+
+
+(D) Files Provided
+HuffmanCoder.h - Interface for the HuffmanCoder class
+HuffmanCoder.cpp - Implementation of the HuffmanCoder class
+BinaryIO.h - Starter file that can create zap files and return information from
+    zap files
+main.cpp - Driver file for the program
+Makefile - Contains rules to compile and run the program
+README - This file
+unit_tests.h - File used to test the functions I made in Phase One of the
+    project
+ZapUtil.h - File that contains a function to print a created tree. Used to test
+    my program.
+all_conll_english.txt - 5 MB provided file used to test my program
+ecoli.coli - 5 MB starter file used to test my program
+test_1char.txt - Test file containing only one character
+test_empty.txt - Empty test text file
+test_spec_char.txt - Test text file with special characters
+
+
+(E) How to Compile/Run
+This program can be compiled using the make command and run by using the command
+"./zap (un)zap inputFile outputFile"
+
+
+(F) Data Structures and Algorithms
+One data structure that I used for this assignment is an array. This is a
+structure that holds elements of a given type that has a set size. I used this
+to store both the frequencies of characters and the encodings that represent
+these characters. This structure was beneficial for this program because there
+is a set 256 characters represented in basic ASCII code, so I could create these
+arrays with size 256 and use array indeces to access characters. One benefit of
+this structure is that it allows constant time access to any element. One
+detriment is that it is set in size, so if you don't know the number of elements
+beforehand, you cannot expand the array size when it gets full. As mentioned
+before, since I already knew the number of possible characters, I did not need
+an expandable array.
+
+Another data structure that I used in this program is the binary tree. I used
+this structure when I was building my Huffman tree to represent character
+encodings. A binary tree is a linked data structures with nodes that have at
+most two children where every node has exactly 1 parent node other than the
+root. This structure was beneficial to my program because it allowed me to
+represent encodings such that no encoding was a prefix of another encoding. This
+is because there are distinct leaf and non-leaf nodes in a binary tree, and if
+every character is represented by a leaf node, no other characters will lie on
+the path to that character from the root. One downside to the binary tree
+structure is that it does not provide constant time access to every element, and
+in my implementation I had to recursively move through the tree to access
+character nodes. 
+
+Another data structure that I utilized in this program is the priority queue
+structure. A priority queue is a data structure that holds elements that are
+each assigned a value. Elements can be added to the queue and dequeued. When
+elements are dequeued, the priority dequeues the element with the lowest
+assigned value. It is also possible for a priority queue to dequeue the element
+with the highest value, but for my program, it was beneficial to use a minimum
+priority queue. I used the priority queue when implementing the Huffman Encoding
+Algorithm, as it allowed me to access the nodes with the lowest frequencies
+while building a Huffman tree. One benefit of the priority queue is that it puts
+limits on the operations a user can perform with it. Unlike the list ADT, users
+can only access and dequeue elements that have minimum values. This can help
+ensure users cannot change parts of the code that should not be accessible or
+changeable. This can also be a detriment of the priority queue. A user cannot
+easily access just any element in the queue. Instead, the element they want must
+have either a minimum or maximum value.
+
+A final data structure I used is the pair data structure. This structure is part
+of the standard c++ library and holds two values of types set by the user. One
+benefit of this structure is that it allows users to associate a variable of a
+certain type with a variable of a different type, with constant access to both
+variables. One drawback is that the structure can only hold two elements and is
+static in size. This structure was included in the BinaryIO.h file in the
+starter code and held the bitstring and serialized tree of a ZAP file.
+
+One interesting algorithm in my code is the Huffman Encoding Algorithm. I used
+this in the encoding portion of my code. Once I counted all the frequencies of
+characters, I used this algorithm to build the Huffman tree that would provide
+encodings for each character. To start, I made HuffmanTreeNodes for each 
+character that existed within the file that held both the character and its
+frequency. Next, I used a priority queue and added every node to the queue. 
+Next, I popped the top two nodes off the stack and connected them with a node
+that held the sum of both nodes frequencies and popped this node back on the
+priority queue. I repeated this process until there was only one node remaining,
+which would be the root node of my Huffman tree. This algorithm was helpful
+as it created a tree with characters at every leaf with higher frequency 
+characters closest to the root. This ensured that higher frequency characters
+had shorter encodings and that there encodings were prefix-free.
+
+Another interesting algorithm was my function to decode a given bitstring. To do
+this, I made strings that held the bitstring that would be read in by an 
+istringstream and that held the decoded string. I read in the bits from the
+stream one by one, each time checking the current bitstring against every
+character's encoding. Since no encoding is a prefix of another, each time
+my current bits matched an encoding, I reset the current bits string and added
+the character with the matching encoding to the decoded string. I also made sure
+that if the current bits string was empty, I ignored any matching encodings as
+those encodings would represent characters with frequencies of 0. Lastly, after
+reading through the entire stream, I made sure the current bits string was
+empty. If it wasn't, it would mean the encodings did not match the given Huffman
+tree which would throw a runtime error in my program.
+
+
+(G) Testing
+I used unit_tests.h to test my implementation of the Phase One functions. For
+count_freqs, my testing process was a bit involved, as there was no way to
+directly test my outputs as they would print to cout. To do this, I temporarily
+redirected my outputs to an ostringstream that would return from the function
+and checked that that output was desired. In unit tests, I left tests that I
+initially used without assert statements when I just manually looked at my
+stdout output because it would not compile otherwise. For serialize_tree, I
+manually created Huffman trees and passed them through the function. I then
+checked them against the desired output. To test deserialize tree, I used my
+serialize function that I had already tested. I gave deserialize the serialized
+outputs from my previous tests and ensured that they created the same trees that
+I manually created. To do this, I would re-serialize the created trees and check
+that they matched the initial serialization given. The edge cases that I tested
+for count freqs were for empty strings, strings with spaces, strings with
+newlines, and strings with special characters. Some edge cases that I tested for
+the other functions were empty trees, trees with just one node, and trees
+with larger numbers of nodes.
+
+For phase 2, I used diff and the reference program to test my code. I started by
+implementing the encoder function. During implementation, I used the printTree
+function provided in ZapUtil.h to ensure that I created the correct tree. I also
+used stdout to print values for encodings that I got and frequencies that I
+counted. When I finished my implementation for encoder, I used diff to compare
+my encodings versus the reference program. First, I compared my stdout output
+against the reference program to make sure my program encoded a given file in
+the same number of bits. Next I used the reference's unzap capabilities and
+unzapped the file that my encoder zapped. I diff tested this unzapped file
+against the original text file to make sure it exactly matched the text it was
+given. Some edge cases that I tested for this were empty text files, files with
+just one character, files with special characters, and very large test files
+that were provided with the starter code. These files are described above.
+I also tested with input files that don't exist to ensure I threw the proper
+runtime error.
+
+For my decoder function, I tested similarly using the reference program and
+diff. During implementation, I zapped files using my encoder program and printed
+the tree that the encoder built. I unzapped these files with my program and
+printed the tree that my decoder built. I compared the two printed trees to make
+sure my decoder created a matching tree. I used stdout to check that the
+encodings I got were correct. Lastly, I used diff to compare my output file
+with an output file that the reference program created for the same given zap
+file. I also used my own zap and unzap on a text file and diffed the unzapped
+file against the original text file to make sure my entire program properly
+compressed and decompressed a text file. I used the same edge case test files
+as mentioned in the previous paragraph. I also tested with improperly formatted
+Huffman encodings and zapped files that didn't exist/weren't actually zapped.
+
+One note on testing is that my unzap seemed to time out when I ran it using
+valgrind on the 5 MB files. However, when I ran without valgrind it successfully
+decoded these files after around a minute and a half. On autograder, for these
+tests, it says my program times out, but I assume autograder runs these tests
+with valgrind. I'm not sure if there is any way to run the autograder without
+valgrind but I wonder if my tests would still time out?
+
+
+(H) Time Spent
+I spent around 12 hours on this assignment
